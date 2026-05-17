@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora Payway — Neto Comerciante</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;padding:1rem;max-width:680px;margin:0 auto}
+h1{font-size:18px;font-weight:500;margin-bottom:1.25rem;color:#1a1a1a}
+.sec{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.sec h3{font-size:11px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:13px;color:#666}
+input,select{width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:15px;background:#fff;color:#1a1a1a;-webkit-appearance:none}
+input:focus,select:focus{outline:2px solid #3b82f6;border-color:#3b82f6}
+.mc{background:#f7f7f7;border-radius:8px;padding:.85rem 1rem}
+.mc .lbl{font-size:12px;color:#888;margin-bottom:3px}
+.mc .val{font-size:20px;font-weight:500}
+.mc .sub{font-size:12px;color:#888;margin-top:2px}
+.rgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:1rem}
+table{width:100%;font-size:13px;border-collapse:collapse}
+th{text-align:left;font-weight:500;font-size:12px;color:#888;padding:7px 8px;border-bottom:1px solid #eee}
+td{padding:7px 8px;border-bottom:1px solid #eee;color:#1a1a1a}
+tr:last-child td{border-bottom:none}
+.r{text-align:right}
+.nota{font-size:12px;color:#888;margin-top:.75rem;padding:.6rem .8rem;background:#f7f7f7;border-radius:8px}
+.promo{background:#f0fdf4;border-radius:8px;padding:.75rem 1rem;font-size:13px;color:#16a34a;margin-bottom:1rem;border:1px solid #bbf7d0}
+.box-info{border:1.5px solid #bfdbfe;border-radius:12px;padding:1.25rem;margin-bottom:1rem;background:#fff}
+.box-info h3{font-size:11px;font-weight:500;color:#3b82f6;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem}
+.box-green{border:1.5px solid #bbf7d0;border-radius:12px;padding:1.25rem;margin-bottom:1rem;background:#fff}
+.box-green h3{font-size:11px;font-weight:500;color:#16a34a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem}
+.big-blue{font-size:30px;font-weight:500;color:#2563eb}
+.big-green{font-size:30px;font-weight:500;color:#16a34a}
+.green{color:#16a34a}
+.red{color:#dc2626}
+hr{border:none;border-top:1px solid #eee;margin:1rem 0}
+@media(max-width:400px){.g2{grid-template-columns:1fr}.rgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<h1>📊 Calculadora Payway — Neto Comerciante</h1>
+
+<div class="sec">
+  <h3>tu venta</h3>
+  <div class="g2">
+    <div class="field">
+      <label>Precio cobrado al cliente ($)</label>
+      <input type="number" id="venta" value="50000" min="0" step="100">
+    </div>
+    <div class="field">
+      <label>Tamaño de tu comercio</label>
+      <select id="tipo">
+        <option value="micro">Micro / pequeño (PYME)</option>
+        <option value="medio">Mediano</option>
+        <option value="grande">Grande / rubros especiales</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <h3>cómo te paga el cliente</h3>
+  <div class="g2">
+    <div class="field">
+      <label>Medio de pago</label>
+      <select id="medio">
+        <option value="debito">Tarjeta de débito</option>
+        <option value="credito1">Crédito — 1 pago</option>
+        <option value="credito3csi">3 cuotas sin interés (miérc/sáb)</option>
+        <option value="credito3pyme">3 cuotas MiPyME</option>
+        <option value="credito6pyme">6 cuotas MiPyME</option>
+        <option value="qr">QR / Transferencia 3.0</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>¿Estás en período promocional?</label>
+      <select id="promo">
+        <option value="si">Sí (primeros 2 meses)</option>
+        <option value="no">No</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- Cuadro 1 -->
+<div class="sec">
+  <h3>📦 cuadro 1 — qué te queda a vos</h3>
+  <div id="promoMsg" style="display:none" class="promo"></div>
+  <div class="rgrid" id="rgrid"></div>
+  <hr>
+  <h3 style="margin-bottom:.75rem">desglose</h3>
+  <div id="desglose"></div>
+  <hr>
+  <h3 style="margin-bottom:.75rem">plazo de acreditación</h3>
+  <div id="plazo"></div>
+</div>
+
+<!-- Cuadro 2 -->
+<div class="box-info">
+  <h3>💳 cuadro 2 — cuánto paga el cliente por cuota</h3>
+  <div id="cuotaCliente"></div>
+</div>
+
+<!-- Cuadro 3 -->
+<div class="box-green">
+  <h3>🎯 cuadro 3 — precio de lista para que te quede lo que querés</h3>
+  <div id="precioSugerido"></div>
+</div>
+
+<!-- Comparativo -->
+<div class="sec">
+  <h3>comparativo de todos los medios</h3>
+  <div style="overflow-x:auto"><div id="comp"></div></div>
+</div>
+
+<p style="font-size:11px;color:#aaa;text-align:center;margin-top:1rem">Condiciones Payway vigentes · Aranceles: débito 1%+IVA · crédito 2%+IVA · QR 0,8%+IVA · MiPyME 3c coef 1,1039 · 6c coef 1,2139</p>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>'$'+Math.round(n).toLocaleString('es-AR');
+const fmtP=(n,d=1)=>n.toFixed(d)+'%';
+const IVA=0.21;
+
+const MEDIOS={
+  debito:       {label:'Débito',             arancel:0.010,coef:1,     n:1},
+  credito1:     {label:'Crédito 1 pago',     arancel:0.020,coef:1,     n:1},
+  credito3csi:  {label:'3c sin interés',     arancel:0.020,coef:1,     n:3},
+  credito3pyme: {label:'3c MiPyME',          arancel:0.020,coef:1.1039,n:3},
+  credito6pyme: {label:'6c MiPyME',          arancel:0.020,coef:1.2139,n:6},
+  qr:           {label:'QR/Transf.',         arancel:0.008,coef:1,     n:1},
+};
+
+const PLAZOS={
+  debito:       {micro:'1 día hábil',    medio:'1 día hábil',    grande:'1 día hábil'},
+  credito1:     {micro:'5 días hábiles', medio:'8 días hábiles', grande:'18 días hábiles'},
+  credito3csi:  {micro:'5 días hábiles', medio:'8 días hábiles', grande:'18 días hábiles'},
+  credito3pyme: {micro:'10 días hábiles',medio:'10 días hábiles',grande:'10 días hábiles'},
+  credito6pyme: {micro:'10 días hábiles',medio:'10 días hábiles',grande:'10 días hábiles'},
+  qr:           {micro:'inmediato',      medio:'inmediato',      grande:'inmediato'},
+};
+
+function calc(venta,medioId,enPromo){
+  const m=MEDIOS[medioId];
+  const base=venta/m.coef;
+  const arancelBase=enPromo?0:m.arancel;
+  const arancelCIva=arancelBase*(1+IVA);
+  const comision=base*arancelCIva;
+  const neto=base-comision;
+  const perdida=venta-neto;
+  const pctPerdida=venta>0?(perdida/venta)*100:0;
+  const costoCoef=venta-base;
+  const cuotaCliente=venta/m.n;
+  const precioSugerido=venta*m.coef/(1-arancelCIva);
+  const cuotaSugerida=precioSugerido/m.n;
+  return{base,comision,neto,perdida,pctPerdida,costoCoef,arancelBase,arancelCIva,cuotaCliente,precioSugerido,cuotaSugerida,m};
+}
+
+function render(){
+  const venta=parseFloat($('venta').value)||0;
+  const medioId=$('medio').value;
+  const tipo=$('tipo').value;
+  const enPromo=$('promo').value==='si';
+  const r=calc(venta,medioId,enPromo);
+  const tieneCoef=r.m.coef>1;
+
+  if(enPromo){
+    $('promoMsg').style.display='';
+    $('promoMsg').textContent=medioId==='credito3csi'
+      ?'🎉 Promo: 3 cuotas sin interés miércoles y sábados (2 meses).'
+      :'🎉 Período promocional activo (2 meses): arancel bonificado.';
+  } else $('promoMsg').style.display='none';
+
+  $('rgrid').innerHTML=`
+    <div class="mc"><div class="lbl">Te acreditan</div><div class="val green">${fmt(r.neto)}</div><div class="sub">neto en tu cuenta</div></div>
+    <div class="mc"><div class="lbl">Perdés</div><div class="val red">${fmt(r.perdida)}</div><div class="sub">${fmtP(r.pctPerdida)} del precio</div></div>
+    <div class="mc"><div class="lbl">Costo coeficiente</div><div class="val">${fmt(r.costoCoef)}</div><div class="sub">lo absorbés vos</div></div>
+    <div class="mc"><div class="lbl">Arancel Payway</div><div class="val">${fmt(r.comision)}</div><div class="sub">${fmtP(r.arancelCIva*100,2)} s/base</div></div>
+  `;
+
+  let rows=`<tr><td>El cliente paga</td><td class="r">${fmt(venta)}</td></tr>`;
+  if(tieneCoef){
+    rows+=`<tr><td>÷ Coeficiente MiPyME (${r.m.coef})</td><td class="r red">− ${fmt(r.costoCoef)}</td></tr>`;
+    rows+=`<tr><td>= Base acreditada</td><td class="r">${fmt(r.base)}</td></tr>`;
+  }
+  rows+=`<tr><td>Arancel Payway (${fmtP(r.m.arancel*100)}%+IVA${enPromo?' bonif.':''})</td><td class="r red">− ${fmt(r.comision)}</td></tr>`;
+  rows+=`<tr><td><strong>Neto depositado</strong></td><td class="r green"><strong>${fmt(r.neto)}</strong></td></tr>`;
+  $('desglose').innerHTML=`<table><thead><tr><th>Concepto</th><th class="r">Monto</th></tr></thead><tbody>${rows}</tbody></table>
+    ${tieneCoef?`<p class="nota">En MiPyME el cliente siempre paga tu precio. El costo del coeficiente lo absorbés vos.</p>`:''}`;
+
+  const pl=PLAZOS[medioId]?.[tipo]||'consultar';
+  $('plazo').innerHTML=`<span style="font-size:15px;font-weight:500">⏱ ${pl}</span> <span style="font-size:13px;color:#888">(${tipo==='micro'?'micro/pequeño':tipo==='medio'?'mediano':'grande'})</span>`;
+
+  // Cuadro 2
+  if(r.m.n===1){
+    $('cuotaCliente').innerHTML=`<p style="font-size:13px;color:#888;margin-bottom:.5rem">Pago único — no hay cuotas.</p>
+      <div class="big-blue">${fmt(venta)}</div><p style="font-size:13px;color:#888;margin-top:.4rem">paga de una sola vez</p>`;
+  } else {
+    let filas=Array.from({length:r.m.n},(_,i)=>`<tr><td>Cuota ${i+1}</td><td class="r">${fmt(r.cuotaCliente)}</td></tr>`).join('');
+    filas+=`<tr><td><strong>Total</strong></td><td class="r"><strong>${fmt(venta)}</strong></td></tr>`;
+    $('cuotaCliente').innerHTML=`
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:.5rem">
+        <div class="big-blue">${fmt(r.cuotaCliente)}</div>
+        <span style="font-size:16px;color:#888">× ${r.m.n} cuotas</span>
+      </div>
+      <p style="font-size:13px;color:#888;margin-bottom:.75rem">Total que paga el cliente: ${fmt(venta)}</p>
+      <table><thead><tr><th>Cuota</th><th class="r">Monto</th></tr></thead><tbody>${filas}</tbody></table>
+      <p class="nota">El cliente paga siempre tu precio de lista en ${r.m.n} cuotas iguales, sin recargo visible.</p>`;
+  }
+
+  // Cuadro 3
+  const dif=r.precioSugerido-venta;
+  let rowsS=`<tr><td>Precio de lista sugerido</td><td class="r">${fmt(r.precioSugerido)}</td></tr>`;
+  if(tieneCoef) rowsS+=`<tr><td>÷ Coeficiente (${r.m.coef})</td><td class="r red">− ${fmt(r.precioSugerido-r.precioSugerido/r.m.coef)}</td></tr>`;
+  rowsS+=`<tr><td>Arancel Payway</td><td class="r red">− ${fmt((r.precioSugerido/r.m.coef)*r.arancelCIva)}</td></tr>`;
+  rowsS+=`<tr><td><strong>Te queda exactamente</strong></td><td class="r green"><strong>${fmt(venta)}</strong></td></tr>`;
+  $('precioSugerido').innerHTML=`
+    <p style="font-size:13px;color:#888;margin-bottom:.75rem">Para que te queden ${fmt(venta)} netos, cobrá:</p>
+    <div class="big-green">${fmt(r.precioSugerido)}</div>
+    ${r.m.n>1?`<p style="font-size:15px;color:#888;margin-top:.4rem">= ${fmt(r.cuotaSugerida)} × ${r.m.n} cuotas</p>`:''}
+    <p style="font-size:13px;color:#888;margin-top:.4rem;margin-bottom:.75rem">${fmt(dif)} más que tu precio actual</p>
+    <table><thead><tr><th>Concepto</th><th class="r">Monto</th></tr></thead><tbody>${rowsS}</tbody></table>`;
+
+  // Comparativo
+  let tbl=`<table><thead><tr><th>Medio</th><th class="r">Te acreditan</th><th class="r">Perdés</th><th class="r">P. sugerido</th><th class="r">Plazo</th></tr></thead><tbody>`;
+  Object.entries(MEDIOS).forEach(([id,md])=>{
+    const rc=calc(venta,id,enPromo);
+    const pl2=PLAZOS[id]?.[tipo]||'—';
+    const bg=id===medioId?'background:#f7f7f7':'';
+    tbl+=`<tr style="${bg}"><td>${md.label}</td><td class="r green">${fmt(rc.neto)}</td><td class="r red">−${fmt(rc.perdida)}<br><span style="font-size:11px">(${fmtP(rc.pctPerdida)})</span></td><td class="r">${fmt(rc.precioSugerido)}</td><td class="r" style="font-size:12px">${pl2}</td></tr>`;
+  });
+  tbl+='</tbody></table>';
+  $('comp').innerHTML=tbl;
+}
+
+['venta','medio','tipo','promo'].forEach(id=>{
+  $(id).addEventListener('change',render);
+  $(id).addEventListener('input',render);
+});
+render();
+</script>
+</body>
+</html>
